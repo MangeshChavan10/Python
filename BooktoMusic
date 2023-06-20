@@ -1,0 +1,274 @@
+import openai
+
+import os
+
+from flask import Flask, render_template_string, request
+
+# Sets the API key for the OpenAI API using the value of the 'OPENAI_API_KEY' environment variable.
+
+openai.api_key = os.environ['OPENAI_API_KEY']
+
+# This code uses the OpenAI API to generate a tutorial for making a recipe using a list of components provided as an argument.3
+
+
+def generate_tutorial(components):
+
+  response = openai.ChatCompletion.create(
+    model="gpt-3.5-turbo",
+    messages=[{
+      "role": "system",
+      "content": "You are a helpful assistant"
+    }, {
+      "role":
+      "user",
+      "content":
+      f"Suggest the songs based on the book or the character that the user enters.Also add a fun fact regarding that book or character{components} Suggest the songs"
+    }])
+
+  return response['choices'][0]['message']['content']
+
+
+# Create a Flask web application object named app and define a route for the root URL that responds to GET and POST requests
+
+app = Flask(__name__)
+
+
+@app.route('/', methods=['GET', 'POST'])
+
+# This code defines a function that generates a tutorial based on user input obtained through a POST request.
+def hello():
+
+  output = ""
+
+  if request.method == 'POST':
+
+    components = request.form['components']
+
+    output = generate_tutorial(components)
+
+  return render_template_string('''
+ <!DOCTYPE html>
+
+ <html>
+
+ <head>
+
+  <title>Bookify</title>
+  
+       <link rel="shortcut icon" href="text/css" href="https://cdn.gencraft.com/prod/user/1dcbe9b4-c3bd-4053-a5a6-df986ed40156/d6f42d33-b963-4119-8e88-071ac55e0f83/images/image0_1024_1024_watermark.jpg?Expires=1687351630&Signature=XUyXcwuZW-5lQLt1evXVraIDLdyO7URQKAVSKanvn-GT1Y0LwhNmr3ZZO4ZlIfjW3r8j8c3-NHbqfRO37JQDLnq9O-MMCEN~fECWoQfpJSJYdL~RIRfx3mSkH9SqStp6DW4oWJVxVeAnj8as5xu976gT4-huSDObHZGyMNptubuwbF1tU57nGpsK8q3JzqLb3AboMGOG9GQfp2e7Yi~b9rsdQWe7nz-Cxf~sDffj5lkA7JsTwbJ5pSCwjQ-z2TeCxttJ3ZPkJh~LqU0rDylIeT1N7ZKr~xYbD6vZtwMYSyPX3P9jZl1N-5ME33WFszZlCbEiKcXHNjMbRBjw1Ofs6A__&Key-Pair-Id=K3RDDB1TZ8BHT8">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <script>
+
+  async function generateTutorial() {
+
+   const components = document.querySelector('#components').value;
+
+   const output = document.querySelector('#output');
+
+   output.textContent = 'Getting the song for you';
+
+   const response = await fetch('/generate', {
+
+    method: 'POST',
+
+    body: new FormData(document.querySelector('#tutorial-form'))
+
+   });
+
+   const newOutput = await response.text();
+
+   output.textContent = newOutput;
+
+  }
+
+  function copyToClipboard() {
+
+   const output = document.querySelector('#output');
+
+   const textarea = document.createElement('textarea');
+
+   textarea.value = output.textContent;
+
+   document.body.appendChild(textarea);
+
+   textarea.select();
+
+   document.execCommand('copy');
+
+   document.body.removeChild(textarea);
+
+   alert('Copied to clipboard');
+
+  }
+
+  </script>
+
+  <style>
+  *{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+body{
+    background-image: url(https://images.unsplash.com/photo-1613040809024-b4ef7ba99bc3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=870&q=80);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    padding: 10px;
+    color: white;
+    }
+
+ .form-control{
+    height: 100px;
+    width: 100%;
+    background: transparent;
+    border: 2px solid rgba(255,255,255,.5);
+    backdrop-filter: blur(100px);
+    }
+
+.mb-3{
+    margin-top: 20px;
+}
+
+
+.card-header {
+display: flex;
+justify-content: space-between;
+align-items: center;
+}
+.btn-primary {
+    margin-top: 50px;
+    margin-bottom: 25px;
+    padding: 10px 20px;
+    background: transparent;
+    border: 2px solid rgba(255,255,255,.5);
+    backdrop-filter: blur(100px);
+    border-radius: 25px;
+}
+.card{
+    background-color: lightcoral;
+    padding: 10px;
+}
+.card-body{
+    background-color: white;
+    color:black;
+    }
+    
+.logos{
+    margin-top: 50px;
+    text-align: center;
+}
+.logo{
+    margin-top: 10px;
+   display: flex;
+   justify-content: center;
+   align-items: center;
+}
+.logo a {
+    margin-left: 30px;
+}
+
+.logos p{
+    text-align: center;
+    margin-top: 30px;
+}
+
+@media screen (width <=400) {
+    body{ 
+    background-image: url(https://images.unsplash.com/photo-1613040809024-b4ef7ba99bc3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=870&q=80);
+    background-size: cover;
+    background-position: center;
+    }
+
+    .form-control{
+        height: 100px;
+        width: 100%;
+        background: transparent;
+        border: 2px solid rgba(255,255,255,.5);
+        backdrop-filter: blur(100px);
+        }
+}
+
+  </style>
+
+ <script src="https://kit.fontawesome.com/7fddf2c2c7.js" crossorigin="anonymous"></script>
+ </head>
+
+ <body>
+
+  <div class="container">
+
+   <h1 class="my-4">Book to Music Recommender</h1>
+
+   <form id="tutorial-form" onsubmit="event.preventDefault(); generateTutorial();" class="mb-3">
+
+    <div class="mb-3">
+
+     <label for="components" class="form-label">Name of the Book:</label>
+
+     <input type="text" class="form-control" id="components" name="components" placeholder="Enter the Name of the book that you recently read or that you want to read. " required>
+
+    </div>
+
+    <button type="submit" class="btn btn-primary">Get the Song Name</button>
+
+   </form>
+
+   <div class="card">
+
+    <div class="card-header d-flex justify-content-between align-items-center">
+
+     Output:
+
+     <button class="btn btn-secondary btn-sm" onclick="copyToClipboard()">Copy</button>
+
+    </div>
+
+    <div class="card-body">
+
+     <pre id="output" class="mb-0" style="white-space: pre-wrap;">{{ output }}</pre>
+
+    </div>
+
+   </div>
+
+    <div class="logos">
+        <h3>Connect with me here:-</h3>
+        <div class="logo">
+        <a href="https://github.com/MangeshChavan10"><i class="fa-brands fa-github fa-2xl" style="color: #000;"></i></a>
+         <a href="https://www.linkedin.com/in/mangesh-chavan-b8a77024b/"><i class="fa-brands fa-linkedin fa-2xl" style="color: #0a53e6;"></i></a>
+         <a href="https://twitter.com/Mangesh1040"><i class="fa-brands fa-twitter fa-xl" style="color: #3d96f5;"></i></i></a>
+    </div>
+    
+    <p>Made with 💛 by Mangesh </p>
+    </div> 
+
+  </div>
+
+ </body>
+
+ </html>
+
+ ''',
+                                output=output)
+
+
+# This code defines a route for the URL "/generate" that only accepts POST requests.
+
+
+@app.route('/generate', methods=['POST'])
+# This code defines a function 'generate' that takes a POST request containing a 'components' field and returns the result of calling the 'generate_tutorial' function with the provided components as input.
+def generate():
+
+  components = request.form['components']
+
+  return generate_tutorial(components)
+
+
+# This code snippet starts the Flask application if the script is being run directly as the main program, running on the IP address '0.0.0.0' and port number 8080.
+
+if __name__ == '__main__':
+
+  app.run(host='0.0.0.0', port=8080)
